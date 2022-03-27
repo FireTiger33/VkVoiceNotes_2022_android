@@ -1,0 +1,46 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+}
+
+android {
+    namespace 'com.stacktivity.voicenotes'
+    compileSdk 32
+
+    defaultConfig {
+        minSdk 23
+        targetSdk 32
+        versionCode 1
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    def vkSdkVersion = "3.5.1"
+
+    implementation project(':core')
+
+    // Design
+    implementation 'com.google.android.material:material:1.5.0'
+
+    // ViewBinding delegate
+    api "com.github.kirich1409:viewbindingpropertydelegate-noreflection:$vb_delegate_version"
+
+    // Vk SDK
+    implementation "com.vk:android-sdk-core:$vkSdkVersion"
+    implementation "com.vk:android-sdk-api:$vkSdkVersion"
+
+}

@@ -1,0 +1,66 @@
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+}
+
+android {
+    namespace 'com.stacktivity.vkvoicenotes'
+    compileSdk 32
+
+    defaultConfig {
+        applicationId "com.stacktivity.vkvoicenotes"
+        minSdk 23
+        targetSdk 32
+        versionCode 1
+        versionName "0.1"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName =
+                    "${variant.name}-${variant.versionName}-${new Date().toTimestamp().time}.apk"
+        }
+        variant.assembleProvider.configure { assemble ->
+            assemble.doLast {
+                copy {
+                    def outDir = new File(currentProject.projectDir.absolutePath, "apks")
+                    println("outDir ${outDir.absolutePath}")
+                    outDir.mkdirs()
+                    from variant.outputs*.outputFile
+                    into outDir
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+
+    implementation project(':core')
+    implementation project(':voicenotes')
+
+    implementation 'androidx.appcompat:appcompat:1.4.1'
+
+    // Design
+    implementation 'com.google.android.material:material:1.5.0'
+
+    // ViewBinding delegate
+    api "com.github.kirich1409:viewbindingpropertydelegate-noreflection:$vb_delegate_version"
+
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
+
+}

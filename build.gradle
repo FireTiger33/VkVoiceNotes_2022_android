@@ -1,0 +1,22 @@
+buildscript {
+    ext.kotlin_version = "1.6.20-M1"
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.1.2'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+ext {
+    currentProject = this
+
+    coroutine_version = '1.5.2'
+    vb_delegate_version = '1.5.3'
+}
