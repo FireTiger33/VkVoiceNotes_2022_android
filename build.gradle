@@ -18,5 +18,6 @@ ext {
     currentProject = this
 
     coroutine_version = '1.5.2'
+    lifecycle_version = '2.4.1'
     vb_delegate_version = '1.5.3'
 }

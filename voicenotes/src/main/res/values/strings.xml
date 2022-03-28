@@ -1,3 +1,4 @@
 <resources>
     <string name="name">Ваши записи</string>
+    <string name="time_delimiter">/</string>
 </resources>
