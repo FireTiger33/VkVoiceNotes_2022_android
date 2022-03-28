@@ -14,6 +14,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
+import com.stacktivity.core.utils.FragmentManagers.replaceFragment
+import com.stacktivity.voicenotes.R
 import com.stacktivity.voicenotes.R.string
 import com.stacktivity.voicenotes.R.layout.voice_notes_screen
 import com.stacktivity.voicenotes.R.dimen.VoiceNoteItem_horizontal_space
@@ -21,7 +23,9 @@ import com.stacktivity.voicenotes.R.dimen.VoiceNoteItem_vertical_space
 import com.stacktivity.voicenotes.adapter.SpacesVoiceNoteItemDecoration
 import com.stacktivity.voicenotes.adapter.VoiceNoteListAdapter
 import com.stacktivity.voicenotes.databinding.VoiceNotesScreenBinding
+import com.stacktivity.voicenotes.ui.login.LoginFragment
 import com.stacktivity.voicenotes.utils.launchWhenStarted
+import com.vk.api.sdk.VK
 import kotlinx.coroutines.flow.onEach
 
 class VoiceNotesFragment : Fragment(voice_notes_screen) {
@@ -37,6 +41,8 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
 
     private val adapter by lazy { VoiceNoteListAdapter() }
 
+    private var testMode = false
+
     private var recordingFileName: String? = null
     private val recorder = registerForActivityResult(RequestPermission()) { granted ->
         when {
@@ -49,12 +55,22 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
         }
     }
 
+    companion object {
+        const val KEY_TEST_MODE = "keyTest"
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         requireActivity().title = getString(string.name)
+
+        testMode = arguments?.getBoolean(KEY_TEST_MODE, false) ?: false
+
+        if (VK.isLoggedIn().not() && testMode.not()) {
+            showLoginScreen()
+        }
 
         return super.onCreateView(inflater, container, savedInstanceState)
     }
@@ -74,6 +90,11 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
 
     private fun initUI() {
         initNotesView()
+    }
+
+    private fun showLoginScreen() {
+        requireActivity().supportFragmentManager.popBackStack()
+        replaceFragment(requireActivity().supportFragmentManager, LoginFragment(), R.id.container)
     }
 
     private fun initNotesView() {
@@ -129,7 +150,7 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
     private fun openSettingsScreen() {
         startActivity(Intent().apply {
             action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-            data = Uri.parse("package:com.stacktivity.vkvoicenotes")  // TODO get package
+            data = Uri.parse("package:${requireActivity().packageName}")
         })
     }
 }

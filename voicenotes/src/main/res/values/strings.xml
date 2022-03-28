@@ -1,4 +1,10 @@
 <resources>
+    <integer name="com_vk_sdk_AppId">8118981</integer>
+
     <string name="name">Ваши записи</string>
     <string name="time_delimiter">/</string>
+
+    <!--  Login  -->
+    <string name="login">Войти</string>
+    <string name="test_mode">Продолжить без авторизации</string>
 </resources>
