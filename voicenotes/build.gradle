@@ -11,7 +11,6 @@ android {
     defaultConfig {
         minSdk 23
         targetSdk 32
-        versionCode 1
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -36,11 +35,18 @@ dependencies {
     // Design
     implementation 'com.google.android.material:material:1.5.0'
 
+    // Lifecycle
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+
     // ViewBinding delegate
     api "com.github.kirich1409:viewbindingpropertydelegate-noreflection:$vb_delegate_version"
 
     // Vk SDK
     implementation "com.vk:android-sdk-core:$vkSdkVersion"
     implementation "com.vk:android-sdk-api:$vkSdkVersion"
+
+    // Social style date and time formatting
+    implementation 'org.ocpsoft.prettytime:prettytime:5.0.1.Final'
 
 }
