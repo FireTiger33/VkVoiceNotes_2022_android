@@ -5,6 +5,7 @@
     <color name="blue">#2688EB</color>
     <color name="blue_dark">#267ADC</color>
     <color name="gray_dark">#6D7885</color>
+    <color name="blue_alpha_20">#333F8AE0</color>
 
     <color name="item_background">#F5F5F5</color>
     <color name="item_subtitle_color">#888888</color>

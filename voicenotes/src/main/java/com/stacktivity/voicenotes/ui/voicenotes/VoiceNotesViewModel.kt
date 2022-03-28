@@ -28,7 +28,8 @@ class VoiceNotesViewModel(private val repository: VoiceNotesRepository) : ViewMo
     }
 
     fun recordAudio(): String {
-        val audioPath = repository.getNewVoiceNoteFile().path
+        val audioFile = repository.getNewVoiceNoteFile()
+        val audioPath = audioFile.path
         viewModelScope.launch {
             initRecorder().apply {
                 setOutputFile(audioPath)
@@ -38,7 +39,7 @@ class VoiceNotesViewModel(private val repository: VoiceNotesRepository) : ViewMo
             }
         }
 
-        return audioPath
+        return audioFile.name
     }
 
     fun stopRecord() {

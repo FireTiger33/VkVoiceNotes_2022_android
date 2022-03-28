@@ -16,7 +16,8 @@ internal class VoiceNotesRepositoryImpl(cacheDir: File): VoiceNotesRepository {
     }
 
     override fun renameFile(from: String, to: String) {
-        cacheWorker.getFile(from).renameTo(cacheWorker.getFile(to))
+        cacheWorker.getFile(from, voiceNotesDir)
+            .renameTo(cacheWorker.getFile(to, voiceNotesDir))
     }
 
     override fun fetchVoiceNotes(): List<VoiceNoteItem> {
