@@ -23,6 +23,7 @@ import com.stacktivity.voicenotes.R.dimen.VoiceNoteItem_vertical_space
 import com.stacktivity.voicenotes.adapter.SpacesVoiceNoteItemDecoration
 import com.stacktivity.voicenotes.adapter.VoiceNoteListAdapter
 import com.stacktivity.voicenotes.databinding.VoiceNotesScreenBinding
+import com.stacktivity.voicenotes.ui.file_rename.UserFileRenameDialog
 import com.stacktivity.voicenotes.ui.login.LoginFragment
 import com.stacktivity.voicenotes.utils.launchWhenStarted
 import com.vk.api.sdk.VK
@@ -133,8 +134,7 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
                 it.isEnabled = false
                 if (viewModel.audioRecording.value) {
                     viewModel.stopRecord()
-                    // TODO show rename file dialog or delete
-                    viewModel.fetchItems()
+                    showFileRenameDialog()
                 } else {
                     if (shouldShowRequestPermissionRationale(RECORD_AUDIO)) {
                         openSettingsScreen()
@@ -144,6 +144,20 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
                 }
                 it.isEnabled = true
             }
+        }
+    }
+
+    private fun showFileRenameDialog() {
+        val requestKey = "fileName"
+        val dialog = UserFileRenameDialog.newInstance(recordingFileName!!)
+
+        dialog.show(childFragmentManager, requestKey)
+        childFragmentManager.setFragmentResultListener(requestKey, this) { _, result ->
+            val newName = result.getString(requestKey) ?: ""
+            if (newName.isNotEmpty() && newName != recordingFileName) {
+                viewModel.changeRecordedAudioName(recordingFileName!!, newName)
+            }
+            viewModel.fetchItems()
         }
     }
 

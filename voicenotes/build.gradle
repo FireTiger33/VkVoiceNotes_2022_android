@@ -42,6 +42,9 @@ dependencies {
     // ViewBinding delegate
     api "com.github.kirich1409:viewbindingpropertydelegate-noreflection:$vb_delegate_version"
 
+    // Arguments Delegates
+    implementation 'com.tunjid.androidx:core:1.3.2'
+
     // Vk SDK
     implementation "com.vk:android-sdk-core:$vkSdkVersion"
     implementation "com.vk:android-sdk-api:$vkSdkVersion"

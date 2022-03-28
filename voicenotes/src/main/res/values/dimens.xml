@@ -10,6 +10,8 @@
     <dimen name="record_button_margin">32dp</dimen>
 
     <dimen name="margin_bottom_content">24dp</dimen>
-    <dimen name="large_button_corner_radius">12dp</dimen>
+    <dimen name="margin_top_content">24dp</dimen>
+    <dimen name="content_margin_horizontal">24dp</dimen>
+    <dimen name="large_button_corner_radius">16dp</dimen>
 
 </resources>
