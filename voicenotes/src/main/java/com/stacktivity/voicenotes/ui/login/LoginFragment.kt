@@ -2,10 +2,13 @@ package com.stacktivity.voicenotes.ui.login
 
 import android.content.Context
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.stacktivity.core.utils.FragmentManagers.replaceFragment
+import com.stacktivity.voicenotes.R
 import com.stacktivity.voicenotes.R.id.container
 import com.stacktivity.voicenotes.R.layout.login_screen
 import com.stacktivity.voicenotes.databinding.LoginScreenBinding
@@ -28,6 +31,17 @@ class LoginFragment: Fragment(login_screen) {
             preferences.edit().putBoolean("TokenExpired", false)
             showVoiceNotesScreen(testMode = false)
         }
+    }
+
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        requireActivity().title = getString(R.string.login_title)
+
+        return super.onCreateView(inflater, container, savedInstanceState)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
