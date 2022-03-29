@@ -24,8 +24,11 @@ class CacheWorker(private val cacheDir: File) {
         return File(cacheDir.path + File.separator + fileName)
     }
 
-    fun getNewFile(dir: String? = null): File {
-        val name = SimpleDateFormat("ddMMyy_HHmmss", Locale.getDefault()).format(Date())
+    fun getNewFile(extension: String? = null, dir: String? = null): File {
+        val name = SimpleDateFormat("ddMMyy_HHmmss", Locale.getDefault()).format(Date()).let {
+            if (extension != null) it.plus(".$extension")
+            else it
+        }
         return getFile(name, dir).apply { createNewFile() }
     }
 

@@ -1,5 +1,6 @@
 package com.stacktivity.voicenotes.ui.login
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -22,6 +23,9 @@ class LoginFragment: Fragment(login_screen) {
         VK.getVKAuthActivityResultContract()
     ) { authResult ->
         if (authResult is VKAuthenticationResult.Success) {
+            val preferences = requireContext()
+                .getSharedPreferences(requireActivity().packageName, Context.MODE_PRIVATE)
+            preferences.edit().putBoolean("TokenExpired", false)
             showVoiceNotesScreen(testMode = false)
         }
     }

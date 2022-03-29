@@ -1,11 +1,11 @@
 package com.stacktivity.voicenotes.ui.voicenotes
 
 import android.Manifest.permission.RECORD_AUDIO
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,8 +30,6 @@ import com.vk.api.sdk.VK
 import kotlinx.coroutines.flow.onEach
 
 class VoiceNotesFragment : Fragment(voice_notes_screen) {
-
-    private val mTag: String = VoiceNotesFragment::class.java.simpleName
 
     private val binding by viewBinding(VoiceNotesScreenBinding::bind)
 
@@ -69,8 +67,19 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
 
         testMode = arguments?.getBoolean(KEY_TEST_MODE, false) ?: false
 
-        if (VK.isLoggedIn().not() && testMode.not()) {
+        val preferences = requireContext()
+            .getSharedPreferences(requireActivity().packageName, Context.MODE_PRIVATE)
+
+        val tokenExpired = preferences.getBoolean("TokenExpired", false)
+
+        if ((VK.isLoggedIn().not() || tokenExpired) && testMode.not()) {
             showLoginScreen()
+        }
+
+        preferences.registerOnSharedPreferenceChangeListener { prefs, key ->
+            if (key ==  "TokenExpired" && prefs.getBoolean(key, false)) {
+                showLoginScreen()
+            }
         }
 
         return super.onCreateView(inflater, container, savedInstanceState)
@@ -118,12 +127,10 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
         setupButtonsListeners()
 
         viewModel.audioRecording.onEach { audioRecording ->
-            Log.d(mTag, "audio recording: $audioRecording")
             binding.btnAddVoiceNote.isChecked = audioRecording
         }.launchWhenStarted(lifecycleScope)
 
         viewModel.voiceNotesFlow.onEach { voiceNotes ->
-            Log.d(mTag, "voice notes: ${voiceNotes.joinToString { it.path }}")
             adapter.submitList(voiceNotes)
         }.launchWhenStarted(lifecycleScope)
     }
@@ -153,10 +160,8 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
 
         dialog.show(childFragmentManager, requestKey)
         childFragmentManager.setFragmentResultListener(requestKey, this) { _, result ->
-            val newName = result.getString(requestKey) ?: ""
-            if (newName.isNotEmpty() && newName != recordingFileName) {
-                viewModel.changeRecordedAudioName(recordingFileName!!, newName)
-            }
+            val newName = result.getString(requestKey) ?: recordingFileName!!
+            viewModel.applyRecordedAudioName(recordingFileName!!, newName)
             viewModel.fetchItems()
         }
     }

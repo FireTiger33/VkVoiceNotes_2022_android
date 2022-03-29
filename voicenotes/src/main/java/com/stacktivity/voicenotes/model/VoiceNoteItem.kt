@@ -31,15 +31,17 @@ data class VoiceNoteItem(
 
     companion object {
         fun mapFromFile(file: File): VoiceNoteItem {
-            val dataRetriever = MediaMetadataRetriever().apply {
-                setDataSource(file.path)
-            }
-            val durationMs = dataRetriever.extractMetadata(METADATA_KEY_DURATION)!!.toLong()
 
-            dataRetriever.release()
+            val durationMs = try {
+                val dataRetriever = MediaMetadataRetriever().apply {
+                    setDataSource(file.path)
+                }
+                dataRetriever.extractMetadata(METADATA_KEY_DURATION)!!.toLong()
+                    .also { dataRetriever.release() }
+            } catch (e: java.lang.RuntimeException) { 0 }
 
             return VoiceNoteItem(
-                title = file.name,
+                title = file.nameWithoutExtension,
                 createTime = file.lastModified(),
                 durationMs = durationMs,
                 path = file.path
