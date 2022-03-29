@@ -5,11 +5,13 @@ import java.io.File
 
 interface VoiceNotesRepository {
 
-    fun getNewVoiceNoteFile(): File
+    fun getNewFile(extension: String? = null): File
 
-    fun renameFile(from: String, to: String)
+    fun renameFile(from: String, to: String, extension: String? = null)
 
     fun fetchVoiceNotes(): List<VoiceNoteItem>
+
+    suspend fun saveToRemote(name: String, extension: String? = null): Boolean
 
     companion object {
         fun getInstance(cacheDir: File): VoiceNotesRepository {

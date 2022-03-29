@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.File
 
 class VoiceNotesViewModel(private val repository: VoiceNotesRepository) : ViewModel() {
 
@@ -20,6 +21,9 @@ class VoiceNotesViewModel(private val repository: VoiceNotesRepository) : ViewMo
     private val _audioRecording = MutableStateFlow(false)
     val audioRecording: StateFlow<Boolean> get() = _audioRecording.asStateFlow()
 
+    private var recordingFile: File? = null
+    private val voiceNoteFormat = "3gpp"
+
 
     fun fetchItems() {
         viewModelScope.launch {
@@ -28,7 +32,7 @@ class VoiceNotesViewModel(private val repository: VoiceNotesRepository) : ViewMo
     }
 
     fun recordAudio(): String {
-        val audioFile = repository.getNewVoiceNoteFile()
+        val audioFile = repository.getNewFile(voiceNoteFormat).also { recordingFile = it }
         val audioPath = audioFile.path
         viewModelScope.launch {
             initRecorder().apply {
@@ -39,7 +43,7 @@ class VoiceNotesViewModel(private val repository: VoiceNotesRepository) : ViewMo
             }
         }
 
-        return audioFile.name
+        return audioFile.nameWithoutExtension
     }
 
     fun stopRecord() {
@@ -50,15 +54,20 @@ class VoiceNotesViewModel(private val repository: VoiceNotesRepository) : ViewMo
         }
     }
 
-    fun changeRecordedAudioName(from: String, to: String) {
-        repository.renameFile(from, to)
+    fun applyRecordedAudioName(from: String, to: String) {
+        if (from != to) {
+            repository.renameFile(from, to, voiceNoteFormat)
+        }
+        viewModelScope.launch {
+            val saveResult = repository.saveToRemote(to, voiceNoteFormat)
+        }
     }
 
 
     private fun initRecorder(): MediaRecorder {
         return mediaRecorder.apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
-            setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS)
+            setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
             setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
         }
     }
