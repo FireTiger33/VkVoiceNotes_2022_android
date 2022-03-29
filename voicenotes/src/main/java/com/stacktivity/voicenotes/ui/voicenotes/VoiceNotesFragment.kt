@@ -63,7 +63,7 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        requireActivity().title = getString(string.name)
+        requireActivity().title = getString(string.voice_notes_title)
 
         testMode = arguments?.getBoolean(KEY_TEST_MODE, false) ?: false
 
