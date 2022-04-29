@@ -2,6 +2,7 @@ package com.stacktivity.voicenotes.model
 
 import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.METADATA_KEY_DURATION
+import androidx.recyclerview.widget.DiffUtil
 import org.ocpsoft.prettytime.PrettyTime
 import java.io.File
 import java.util.Locale
@@ -18,6 +19,12 @@ data class VoiceNoteItem(
     val createTimeString: String = PrettyTime(Locale.getDefault()).format(Date(createTime))
     var isPlaying = false
 
+    constructor(mediaFile: File) : this(
+        title = mediaFile.nameWithoutExtension,
+        createTime = mediaFile.lastModified(),
+        durationMs = getDurationData(mediaFile),
+        path = mediaFile.absolutePath
+    )
 
     override fun equals(other: Any?): Boolean {
         return if (other is VoiceNoteItem) {
@@ -52,6 +59,22 @@ data class VoiceNoteItem(
             val m = seconds / 60
             val s = seconds % 60
             return "$m:${if (s < 10) "0" else ""}$s"
+        }
+
+        /**
+         * Used to get duration data from a media file.
+         * @return duration of [mediaFile] in ms
+         */
+        private fun getDurationData(mediaFile: File): Long {
+            return try {
+                val dataRetriever = MediaMetadataRetriever().apply {
+                    setDataSource(mediaFile.inputStream().fd)
+                }
+                dataRetriever.extractMetadata(METADATA_KEY_DURATION)!!.toLong()
+                    .also { dataRetriever.release() }
+            } catch (e: RuntimeException) {
+                0
+            }
         }
     }
 }

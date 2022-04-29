@@ -24,7 +24,7 @@ internal class VoiceNotesRepositoryImpl(cacheDir: File): VoiceNotesRepository {
 
     override fun fetchVoiceNotes(): List<VoiceNoteItem> {
         return cacheWorker.getListFiles(voiceNotesDir)
-            .map { VoiceNoteItem.mapFromFile(it) }
+            .map { VoiceNoteItem(it) }
             .sortedByDescending { it.createTime }
     }
 
