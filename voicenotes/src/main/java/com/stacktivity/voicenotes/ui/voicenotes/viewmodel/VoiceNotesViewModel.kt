@@ -55,11 +55,18 @@ class VoiceNotesViewModel(private val repository: VoiceNotesRepository) : ViewMo
     }
 
     fun applyRecordedAudioName(from: String, to: String) {
-        if (from != to) {
-            repository.renameFile(from, to, voiceNoteFormat)
-        }
         viewModelScope.launch {
-            val saveResult = repository.saveToRemote(to, voiceNoteFormat)
+            if (from != to) {
+                repository.renameFile(from, to, voiceNoteFormat)
+            }
+
+            repository.fetchVoiceNote(to, voiceNoteFormat)?.also { newNote ->
+                ArrayList<VoiceNoteItem>(_voiceNotesFlow.value.size + 1)
+                    .apply { add(newNote); addAll(_voiceNotesFlow.value) }
+                    .also { _voiceNotesFlow.tryEmit(it) }
+            }
+
+            /*val saveResult = */repository.saveToRemote(to, voiceNoteFormat)
         }
     }
 

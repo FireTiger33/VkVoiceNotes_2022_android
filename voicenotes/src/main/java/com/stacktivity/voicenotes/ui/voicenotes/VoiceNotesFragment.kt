@@ -11,7 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.stacktivity.core.utils.FragmentManagers.replaceFragment
@@ -28,6 +28,7 @@ import com.stacktivity.voicenotes.ui.login.LoginFragment
 import com.stacktivity.voicenotes.utils.launchWhenStarted
 import com.vk.api.sdk.VK
 import kotlinx.coroutines.flow.onEach
+
 
 class VoiceNotesFragment : Fragment(voice_notes_screen) {
 
@@ -156,6 +157,14 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
         }
     }
 
+    private fun setupAdapterObservers() {
+        adapter.registerAdapterDataObserver(object : AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                binding.voiceNoteListRv.layoutManager?.scrollToPosition(positionStart)
+            }
+        })
+    }
+
     private fun showFileRenameDialog() {
         val requestKey = "fileName"
         val dialog = UserFileRenameDialog.newInstance(recordingFileName!!)
@@ -164,7 +173,6 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
         childFragmentManager.setFragmentResultListener(requestKey, this) { _, result ->
             val newName = result.getString(requestKey) ?: recordingFileName!!
             viewModel.applyRecordedAudioName(recordingFileName!!, newName)
-            viewModel.fetchItems()
         }
     }
 
