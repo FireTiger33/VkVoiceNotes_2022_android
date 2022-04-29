@@ -33,9 +33,8 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
 
     private val binding by viewBinding(VoiceNotesScreenBinding::bind)
 
-    private val viewModel by lazy {
-        ViewModelProvider(this, VoiceNotesViewModelFactory(requireContext().cacheDir))
-            .get(VoiceNotesViewModel::class.java)
+    private val viewModel by viewModels<VoiceNotesViewModel> {
+        VoiceNotesViewModelFactory(requireContext())
     }
 
     private val adapter by lazy { VoiceNoteListAdapter() }
@@ -74,6 +73,7 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
 
         if ((VK.isLoggedIn().not() || tokenExpired) && testMode.not()) {
             showLoginScreen()
+            return null
         }
 
         preferences.registerOnSharedPreferenceChangeListener { prefs, key ->
@@ -93,6 +93,8 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        if (view == null) return
+
         if (viewModel.audioRecording.value) {
             viewModel.stopRecord()
         }
