@@ -13,6 +13,7 @@ import androidx.activity.result.contract.ActivityResultContracts.RequestPermissi
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.stacktivity.core.utils.FragmentManagers.replaceFragment
 import com.stacktivity.voicenotes.R
@@ -25,6 +26,7 @@ import com.stacktivity.voicenotes.adapter.VoiceNoteListAdapter
 import com.stacktivity.voicenotes.databinding.VoiceNotesScreenBinding
 import com.stacktivity.voicenotes.ui.file_rename.UserFileRenameDialog
 import com.stacktivity.voicenotes.ui.login.LoginFragment
+import com.stacktivity.voicenotes.ui.voicenotes.viewmodel.VoiceNotesViewModel
 import com.stacktivity.voicenotes.utils.launchWhenStarted
 import com.vk.api.sdk.VK
 import kotlinx.coroutines.flow.onEach
@@ -38,7 +40,9 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
         VoiceNotesViewModelFactory(requireContext())
     }
 
-    private val adapter by lazy { VoiceNoteListAdapter() }
+    private val adapter by lazy { VoiceNoteListAdapter { voiceNoteItem ->
+        viewModel.onMediaItemClicked(voiceNoteItem)
+    }}
 
     private var testMode = false
 
@@ -128,6 +132,7 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
 
     private fun setupObservers() {
         setupButtonsListeners()
+        setupAdapterObservers()
 
         viewModel.audioRecording.onEach { audioRecording ->
             binding.btnAddVoiceNote.isChecked = audioRecording
@@ -158,6 +163,10 @@ class VoiceNotesFragment : Fragment(voice_notes_screen) {
     }
 
     private fun setupAdapterObservers() {
+        viewModel.playbackState
+            .onEach(adapter::onPlaybackStateChanged)
+            .launchWhenStarted(lifecycleScope)
+
         adapter.registerAdapterDataObserver(object : AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
                 binding.voiceNoteListRv.layoutManager?.scrollToPosition(positionStart)

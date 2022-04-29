@@ -1,18 +1,25 @@
-package com.stacktivity.voicenotes.ui.voicenotes
+package com.stacktivity.voicenotes.ui.voicenotes.viewmodel
 
 import android.media.MediaRecorder
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.stacktivity.media.common.MusicServiceConnection
 import com.stacktivity.voicenotes.model.VoiceNoteItem
 import com.stacktivity.voicenotes.repo.VoiceNotesRepository
+import com.stacktivity.voicenotes.ui.voicenotes.viewmodel.usecases.PlayMediaUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 
-class VoiceNotesViewModel(private val repository: VoiceNotesRepository) : ViewModel() {
 
+class VoiceNotesViewModel(
+    private val repository: VoiceNotesRepository,
+    private val musicServiceConnection: MusicServiceConnection
+) : ViewModel() {
+
+    @Suppress("DEPRECATION")
     private var mediaRecorder: MediaRecorder = MediaRecorder()
 
     private val _voiceNotesFlow = MutableStateFlow<List<VoiceNoteItem>>(listOf())
@@ -21,13 +28,20 @@ class VoiceNotesViewModel(private val repository: VoiceNotesRepository) : ViewMo
     private val _audioRecording = MutableStateFlow(false)
     val audioRecording: StateFlow<Boolean> get() = _audioRecording.asStateFlow()
 
+    val playbackState get() = musicServiceConnection.playbackState
+
     private var recordingFile: File? = null
     private val voiceNoteFormat = "3gpp"
 
+    private val playMediaUseCase =
+        PlayMediaUseCase(musicServiceConnection, _voiceNotesFlow, viewModelScope)
 
     fun fetchItems() {
         viewModelScope.launch {
-            _voiceNotesFlow.tryEmit(repository.fetchVoiceNotes())
+            val voiceNotes = repository.fetchVoiceNotes()
+            playMediaUseCase.applyCurrentState(voiceNotes)
+
+            _voiceNotesFlow.tryEmit(voiceNotes)
         }
     }
 
@@ -70,6 +84,9 @@ class VoiceNotesViewModel(private val repository: VoiceNotesRepository) : ViewMo
         }
     }
 
+    fun onMediaItemClicked(item: VoiceNoteItem) {
+        playMediaUseCase.play(item)
+    }
 
     private fun initRecorder(): MediaRecorder {
         return mediaRecorder.apply {

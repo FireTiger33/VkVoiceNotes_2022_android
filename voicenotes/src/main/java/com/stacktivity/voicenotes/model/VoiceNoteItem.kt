@@ -7,17 +7,20 @@ import org.ocpsoft.prettytime.PrettyTime
 import java.io.File
 import java.util.Locale
 import java.util.Date
+import com.stacktivity.voicenotes.model.PlayableItem.PlaybackState
 
 
 data class VoiceNoteItem(
-    val title: String,
+    override val title: String,
     val createTime: Long,
     val durationMs: Long,
-    val path: String
-) {
+    override val path: String,
+    override var state: PlaybackState = PlaybackState.STOPPED
+) : PlayableItem {
+
     val durationString: String = timeSecondsToString((durationMs / 1000).toInt())
     val createTimeString: String = PrettyTime(Locale.getDefault()).format(Date(createTime))
-    var isPlaying = false
+
 
     constructor(mediaFile: File) : this(
         title = mediaFile.nameWithoutExtension,
@@ -26,34 +29,24 @@ data class VoiceNoteItem(
         path = mediaFile.absolutePath
     )
 
-    override fun equals(other: Any?): Boolean {
-        return if (other is VoiceNoteItem) {
-            return createTime == other.createTime
-        } else false
+
+    override fun copy(newState: PlaybackState): PlayableItem {
+        return copy(state = state).apply { this.state = newState }
     }
 
-    override fun hashCode(): Int {
-        return super.hashCode()
-    }
 
     companion object {
-        fun mapFromFile(file: File): VoiceNoteItem {
+        fun getDiffCallback(): DiffUtil.ItemCallback<VoiceNoteItem> =
+            object : DiffUtil.ItemCallback<VoiceNoteItem>() {
+                override fun areItemsTheSame(old: VoiceNoteItem, new: VoiceNoteItem) =
+                    old.id == new.id
 
-            val durationMs = try {
-                val dataRetriever = MediaMetadataRetriever().apply {
-                    setDataSource(file.path)
-                }
-                dataRetriever.extractMetadata(METADATA_KEY_DURATION)!!.toLong()
-                    .also { dataRetriever.release() }
-            } catch (e: java.lang.RuntimeException) { 0 }
+                override fun areContentsTheSame(old: VoiceNoteItem, new: VoiceNoteItem) =
+                    old == new && old.state == new.state
 
-            return VoiceNoteItem(
-                title = file.nameWithoutExtension,
-                createTime = file.lastModified(),
-                durationMs = durationMs,
-                path = file.path
-            )
-        }
+                override fun getChangePayload(old: VoiceNoteItem, new: VoiceNoteItem) =
+                    if (old.state != new.state) new.state else super.getChangePayload(old, new)
+            }
 
         fun timeSecondsToString(seconds: Int): String {
             val m = seconds / 60

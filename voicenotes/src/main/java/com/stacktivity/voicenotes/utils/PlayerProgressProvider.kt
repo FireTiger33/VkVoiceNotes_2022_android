@@ -1,6 +1,6 @@
 package com.stacktivity.voicenotes.utils
 
 interface PlayerProgressProvider {
-    fun getCurrentTimeMs(): Int
-    fun getCurrentProgress(): Int
+    fun getCurrentPlaybackPositionMs(): Long
+    fun getCurrentProgress(totalDurationMs: Long, playbackPositionMs: Long? = null): Int
 }
