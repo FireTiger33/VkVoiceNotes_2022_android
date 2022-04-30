@@ -24,8 +24,14 @@ internal class VoiceNotesRepositoryImpl(cacheDir: File): VoiceNotesRepository {
 
     override fun fetchVoiceNotes(): List<VoiceNoteItem> {
         return cacheWorker.getListFiles(voiceNotesDir)
-            .map { VoiceNoteItem.mapFromFile(it) }
+            .map { VoiceNoteItem(it) }
             .sortedByDescending { it.createTime }
+    }
+
+    override fun fetchVoiceNote(name: String, extension: String?): VoiceNoteItem? {
+        val format = extension?.let { ".$extension" } ?: ""
+        val noteFile = cacheWorker.getFile("$name$format", voiceNotesDir)
+        return if (noteFile.exists()) VoiceNoteItem(noteFile) else null
     }
 
     override suspend fun saveToRemote(name: String, extension: String?): Boolean {

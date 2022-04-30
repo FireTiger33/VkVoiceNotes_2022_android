@@ -5,11 +5,11 @@ plugins {
 
 android {
     namespace 'com.stacktivity.core'
-    compileSdk 32
+    compileSdk 31
 
     defaultConfig {
         minSdk 23
-        targetSdk 32
+        targetSdk 31
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"

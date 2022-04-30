@@ -13,7 +13,8 @@
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         tools:itemCount="10"
         android:overScrollMode="always"
-        tools:listitem="@layout/voice_note_item" />
+        tools:listitem="@layout/voice_note_item"
+        android:paddingBottom="100dp"/>
 
     <ToggleButton
         android:id="@+id/btn_add_voice_note"

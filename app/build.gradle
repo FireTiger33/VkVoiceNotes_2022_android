@@ -6,16 +6,20 @@ plugins {
 
 android {
     namespace 'com.stacktivity.vkvoicenotes'
-    compileSdk 32
+    compileSdk 31
 
     defaultConfig {
         applicationId "com.stacktivity.vkvoicenotes"
         minSdk 23
-        targetSdk 32
+        targetSdk 31
         versionCode 5
         versionName "0.4.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    compileOptions {
+        coreLibraryDesugaringEnabled true
     }
 
     buildTypes {
@@ -49,6 +53,9 @@ android {
 }
 
 dependencies {
+    // It is necessary to support minSdkVersion below 26
+    // and work with the Pretty Time library included in [voicenotes] module.
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 
     implementation project(':core')
     implementation project(':voicenotes')
@@ -63,7 +70,4 @@ dependencies {
 
     // Vk SDK
     implementation "com.vk:android-sdk-core:$vkSdkVersion"
-
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
-
 }

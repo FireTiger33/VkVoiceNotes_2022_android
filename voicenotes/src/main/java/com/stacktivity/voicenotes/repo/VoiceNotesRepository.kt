@@ -11,6 +11,8 @@ interface VoiceNotesRepository {
 
     fun fetchVoiceNotes(): List<VoiceNoteItem>
 
+    fun fetchVoiceNote(name: String, extension: String? = null): VoiceNoteItem?
+
     suspend fun saveToRemote(name: String, extension: String? = null): Boolean
 
     companion object {

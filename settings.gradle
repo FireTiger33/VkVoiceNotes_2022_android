@@ -16,3 +16,4 @@ rootProject.name = "VkVoiceNotes"
 include ':app'
 include ':core'
 include ':voicenotes'
+include ':media'

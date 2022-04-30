@@ -7,6 +7,7 @@ import com.stacktivity.voicenotes.databinding.VoiceNoteItemBinding
 import com.stacktivity.voicenotes.model.VoiceNoteItem
 import com.stacktivity.voicenotes.utils.PlayerProgressProvider
 
+
 class VoiceNoteViewHolder(
     private val binding: VoiceNoteItemBinding,
 ) : ViewHolder(binding.root) {
@@ -30,31 +31,45 @@ class VoiceNoteViewHolder(
     }
 
     fun handleMediaProgress(provider: PlayerProgressProvider) {
-        val countDownInterval = item!!.durationMs / 25
-        val allMs = item!!.durationMs
-        val millisInFuture = allMs - provider.getCurrentTimeMs()
+        val totalDurationMs = item!!.durationMs
+        val startPlaybackPosition = provider.getCurrentPlaybackPositionMs()
+        val countDownInterval = totalDurationMs / 25
+        val millisInFuture = totalDurationMs - startPlaybackPosition
+
+        binding.btnPlay.isChecked = true
 
         handleProgressTimer = object : CountDownTimer(millisInFuture, countDownInterval) {
             override fun onTick(millisUntilFinished: Long) {
-                val currentTimeMs = provider.getCurrentTimeMs()
-                binding.playerProgressBar.progress = provider.getCurrentProgress()
-                binding.currentTime.text = VoiceNoteItem.timeSecondsToString(currentTimeMs / 1000)
+                val playbackPosition = provider.getCurrentPlaybackPositionMs()
+                showMediaProgress(
+                    provider.getCurrentProgress(totalDurationMs, playbackPosition),
+                    playbackPosition,
+                )
             }
 
-            override fun onFinish() { }
+            override fun onFinish() {}
 
         }.start()
+    }
 
-        binding.apply {
-            currentTime.visibility = View.VISIBLE
-            timeDelimiter.visibility = View.VISIBLE
-            playerProgressBar.visibility = View.VISIBLE
+    fun showMediaProgress(progress: Int, timeMs: Long) {
+        binding.playerProgressBar.progress = progress
+        binding.currentTime.text = VoiceNoteItem.timeSecondsToString((timeMs / 1000).toInt())
+
+        if (binding.playerProgressBar.visibility != View.VISIBLE) {
+            binding.apply {
+                currentTime.visibility = View.VISIBLE
+                timeDelimiter.visibility = View.VISIBLE
+                playerProgressBar.visibility = View.VISIBLE
+            }
         }
     }
 
     fun pauseHandleMediaProgress() {
         handleProgressTimer?.cancel()
         handleProgressTimer = null
+
+        binding.btnPlay.isChecked = false
     }
 
     fun stopHandleMediaProgress() {
